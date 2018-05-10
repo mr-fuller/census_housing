@@ -1,2 +1,2 @@
 # census_housing
-groping the census api for housing data for use in the Long Range Plan and other documents.
+yanking housing data from the census api for use in the Long Range Plan and other documents.
