@@ -13,12 +13,7 @@ def housingunitdata():
     ##
     # BUILD DIRECTORIES ON Z TO HOLD CSV FILES
     ##
-    print('  Building directory structure on Z:\...'),  # add a line to handle exceptions?
-    #acs_year = str(year_int - 4) + 'to' + str(year_int)[-2:]
-    base_dir = "Z:/fullerm/LRP/Housing/" + str(year_int)
-    # Create base directory if it doesn't exist
-    if not os.path.exists(base_dir):
-        os.makedirs(base_dir)
+
     # Create subdirectories if they don't exist
     '''for geo in api_pull:
         directory = base_dir + '\\' + geo
@@ -48,16 +43,26 @@ def housingunitdata():
     fips = {'Lucas':'39095','Wood':'39173','Monroe':'26115'}
     df = pandas.DataFrame()
     for county in fips:
-        temp_df = pandas.DataFrame(c.acs5.state_county_subdivision(fields,fips[county][:2],fips[county][2:],'*'))
-        df = df.append(temp_df)
+        if county == 'Monroe':
+            temp_df = pandas.DataFrame(c.acs5.state_county_subdivision(fields,fips[county][:2],fips[county][2:],'*'))
+            temp_df = temp_df.loc[temp_df['county subdivision'].isin(['49700', # Luna Pier
+                                 '06740', # Bedford
+                                   '26320', # Erie
+                                   '86740' # Whiteford
+                                    ])]
+            df = df.append(temp_df)
+        else:
+            temp_df = pandas.DataFrame(c.acs5.state_county_subdivision(fields,fips[county][:2],fips[county][2:],'*'))
+            df = df.append(temp_df)
 
     # scrape this web page to get api metadata, i.e., 'label' :https://api.census.gov/data/2016/acs/acs5/variables.json
     res = requests.get('https://api.census.gov/data/2016/acs/acs5/variables.json')
     metadata = pandas.DataFrame(res.json()['variables']).transpose()
-    print(metadata[['label','concept']])
+    # print(metadata[['label','concept']])
 
-    #print(df)
+    print(df)
     print("Program Complete in " + str(datetime.now()-start_time))
     return df
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    housingunitdata()
